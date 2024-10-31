@@ -1,17 +1,21 @@
 package riccardogulin.u5d9.services;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import riccardogulin.u5d9.entities.User;
 import riccardogulin.u5d9.exceptions.BadRequestException;
 import riccardogulin.u5d9.exceptions.NotFoundException;
 import riccardogulin.u5d9.payloads.NewUserDTO;
 import riccardogulin.u5d9.repositories.UsersRepository;
 
+import java.io.IOException;
 import java.util.UUID;
 
 @Service
@@ -19,6 +23,9 @@ public class UsersService {
 
 	@Autowired
 	private UsersRepository usersRepository;
+
+	@Autowired
+	private Cloudinary cloudinaryUploader;
 
 	public User save(NewUserDTO body) {
 		// 1. Verifico che l'email non sia già in uso
@@ -76,5 +83,19 @@ public class UsersService {
 	public void findByIdAndDelete(UUID userId) {
 		User found = this.findById(userId);
 		this.usersRepository.delete(found);
+	}
+
+	public String uploadAvatar(MultipartFile file) {
+
+		String url = null;
+		try {
+			url = (String) cloudinaryUploader.uploader().upload(file.getBytes(), ObjectUtils.emptyMap()).get("url");
+		} catch (IOException e) {
+			throw new BadRequestException("Ci sono stati problemi con l'upload del file!");
+		}
+		// ... qua poi dovrei prendere l'url e salvarlo nel rispettivo utente
+		return url;
+
+
 	}
 }

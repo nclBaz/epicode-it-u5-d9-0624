@@ -1,4 +1,4 @@
-package riccardogulin.u5d9;
+package riccardogulin.u5d9.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import riccardogulin.u5d9.entities.User;
 import riccardogulin.u5d9.exceptions.BadRequestException;
 import riccardogulin.u5d9.payloads.NewUserDTO;
@@ -79,5 +80,12 @@ public class UsersController {
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void findByIdAndDelete(@PathVariable UUID userId) {
 		this.usersService.findByIdAndDelete(userId);
+	}
+
+	@PatchMapping("/{userId}/avatar")
+	public String uploadAvatar(@RequestParam("avatar") MultipartFile file) {
+		// "avatar" deve corrispondere ESATTAMENTE al campo del FormData che ci invia il Frontend
+		// Se non corrisponde, non troverò il file
+		return this.usersService.uploadAvatar(file);
 	}
 }
